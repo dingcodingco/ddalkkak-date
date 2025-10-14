@@ -43,9 +43,9 @@ mcp__atlassian__transitionJiraIssue(
 
 **실행:**
 ```bash
-# develop 브랜치 최신화
-git checkout develop
-git pull origin develop
+# main 브랜치 최신화
+git checkout main
+git pull origin main
 
 # 작업 브랜치 생성
 git checkout -b feature/$TICKET_ID-$DESCRIPTION
@@ -57,7 +57,7 @@ git checkout -b feature/$TICKET_ID-$DESCRIPTION
 ```bash
 gh pr create \
   --draft \
-  --base develop \
+  --base main \
   --head feature/$TICKET_ID-$DESCRIPTION \
   --title "[$TICKET_ID] $TITLE" \
   --body "## 관련 JIRA 티켓
@@ -127,7 +127,7 @@ $DOD_CHECKLIST"
 1. JIRA MCP로 티켓 `{ticket_id}` 조회
 2. 티켓 상태를 "진행 중"으로 변경
 3. Git 브랜치 생성: `feature/{ticket_id}-{description}`
-4. GitHub CLI로 Draft PR 생성 (base: develop)
+4. GitHub CLI로 Draft PR 생성 (base: main)
 5. Definition of Done을 파싱하여 TodoWrite 생성
 6. 작업 시작 안내 메시지 출력
 
