@@ -37,6 +37,13 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
 
+# Kakao Local API Configuration
+kakao:
+  api:
+    key: ${KAKAO_REST_API_KEY:test-api-key-for-development}
+    base-url: https://dapi.kakao.com
+    timeout: 5000
+
 # Claude AI Configuration
 claude:
   api:
