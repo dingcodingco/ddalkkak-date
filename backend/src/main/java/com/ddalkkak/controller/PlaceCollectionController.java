@@ -35,10 +35,8 @@ public class PlaceCollectionController {
         log.info("Starting place collection batch...");
 
         try {
-            // 비동기 실행 (실제 프로덕션에서는 @Async 사용 권장)
-            new Thread(() -> {
-                placeCollectionBatchService.collectAndCuratePlaces();
-            }).start();
+            // @Async 비동기 실행
+            placeCollectionBatchService.collectAndCuratePlaces();
 
             return ResponseEntity.ok(Map.of(
                     "status", "started",
@@ -63,9 +61,8 @@ public class PlaceCollectionController {
         log.info("Starting place re-curation...");
 
         try {
-            new Thread(() -> {
-                placeCollectionBatchService.recuratePlaces();
-            }).start();
+            // @Async 비동기 실행
+            placeCollectionBatchService.recuratePlaces();
 
             return ResponseEntity.ok(Map.of(
                     "status", "started",

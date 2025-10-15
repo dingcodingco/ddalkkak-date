@@ -6,8 +6,8 @@ import com.ddalkkak.dto.PlaceCurationResult;
 import com.ddalkkak.repository.PlaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,7 @@ public class PlaceCollectionBatchService {
      * - Phase 1: Kakao API로 500곳 수집
      * - Phase 2: Claude API로 AI 큐레이션
      */
-    @Transactional
+    @Async
     public void collectAndCuratePlaces() {
         log.info("=== Starting Place Collection & Curation Batch ===");
 
@@ -181,7 +181,7 @@ public class PlaceCollectionBatchService {
     /**
      * 기존 장소들 재큐레이션 (AI 분석만 재실행)
      */
-    @Transactional
+    @Async
     public void recuratePlaces() {
         log.info("=== Starting Place Re-Curation ===");
 
