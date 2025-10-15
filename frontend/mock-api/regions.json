@@ -1,0 +1,99 @@
+{
+  "regions": [
+    {
+      "id": "hongdae",
+      "display_name": "홍대",
+      "emoji": "🎨",
+      "coordinates": {
+        "latitude": 37.5563,
+        "longitude": 126.9239
+      },
+      "map_position": {
+        "x": 200,
+        "y": 180
+      },
+      "svg_path": "M 180,160 L 220,160 L 220,200 L 180,200 Z",
+      "popularity_score": 95,
+      "available_places_count": 150,
+      "keywords": ["힙한", "예술", "클럽"],
+      "tier": 1,
+      "is_active": true
+    },
+    {
+      "id": "gangnam",
+      "display_name": "강남",
+      "emoji": "🏙️",
+      "coordinates": {
+        "latitude": 37.4979,
+        "longitude": 127.0276
+      },
+      "map_position": {
+        "x": 450,
+        "y": 350
+      },
+      "svg_path": "M 430,330 L 470,330 L 470,370 L 430,370 Z",
+      "popularity_score": 90,
+      "available_places_count": 200,
+      "keywords": ["럭셔리", "쇼핑", "맛집"],
+      "tier": 1,
+      "is_active": true
+    },
+    {
+      "id": "itaewon",
+      "display_name": "이태원",
+      "emoji": "🌍",
+      "coordinates": {
+        "latitude": 37.5347,
+        "longitude": 126.9945
+      },
+      "map_position": {
+        "x": 350,
+        "y": 250
+      },
+      "svg_path": "M 330,230 L 370,230 L 370,270 L 330,270 Z",
+      "popularity_score": 85,
+      "available_places_count": 120,
+      "keywords": ["다국적", "이색적", "분위기"],
+      "tier": 1,
+      "is_active": true
+    },
+    {
+      "id": "jamsil",
+      "display_name": "잠실",
+      "emoji": "🎢",
+      "coordinates": {
+        "latitude": 37.5134,
+        "longitude": 127.1000
+      },
+      "map_position": {
+        "x": 550,
+        "y": 300
+      },
+      "svg_path": "M 530,280 L 570,280 L 570,320 L 530,320 Z",
+      "popularity_score": 80,
+      "available_places_count": 100,
+      "keywords": ["테마파크", "쇼핑", "한강"],
+      "tier": 2,
+      "is_active": true
+    },
+    {
+      "id": "myeongdong",
+      "display_name": "명동",
+      "emoji": "🛍️",
+      "coordinates": {
+        "latitude": 37.5636,
+        "longitude": 126.9865
+      },
+      "map_position": {
+        "x": 300,
+        "y": 200
+      },
+      "svg_path": "M 280,180 L 320,180 L 320,220 L 280,220 Z",
+      "popularity_score": 88,
+      "available_places_count": 180,
+      "keywords": ["쇼핑", "관광", "화장품"],
+      "tier": 1,
+      "is_active": true
+    }
+  ]
+}
