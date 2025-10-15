@@ -40,7 +40,7 @@ springdoc:
 # Claude AI Configuration
 claude:
   api:
-    key: ${CLAUDE_API_KEY}
+    key: ${CLAUDE_API_KEY:test-api-key-for-development}
     model: claude-sonnet-4-20250514
     timeout: 30000
     max-tokens: 4096
