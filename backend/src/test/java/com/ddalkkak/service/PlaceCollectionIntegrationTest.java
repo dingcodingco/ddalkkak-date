@@ -4,9 +4,10 @@ import com.ddalkkak.domain.Place;
 import com.ddalkkak.dto.KakaoLocalSearchResponse;
 import com.ddalkkak.dto.PlaceCurationResult;
 import com.ddalkkak.repository.PlaceRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -20,10 +21,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @Disabled 제거하고 실행: ./gradlew test --tests PlaceCollectionIntegrationTest
  */
-@Slf4j
 @SpringBootTest
 @Disabled("Requires real API keys and should be run manually")
 class PlaceCollectionIntegrationTest {
+
+    private static final Logger log = LoggerFactory.getLogger(PlaceCollectionIntegrationTest.class);
 
     @Autowired
     private KakaoLocalService kakaoLocalService;
