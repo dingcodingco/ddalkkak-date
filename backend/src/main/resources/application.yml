@@ -17,6 +17,12 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 3000ms
+
 server:
   port: 8080
   error:
@@ -30,3 +36,36 @@ springdoc:
     path: /swagger-ui.html
     operations-sorter: method
     tags-sorter: alpha
+
+# Claude AI Configuration
+claude:
+  api:
+    key: ${CLAUDE_API_KEY}
+    model: claude-sonnet-4-20250514
+    timeout: 30000
+    max-tokens: 4096
+
+# Langfuse Configuration
+langfuse:
+  api:
+    public-key: ${LANGFUSE_PUBLIC_KEY:}
+    secret-key: ${LANGFUSE_SECRET_KEY:}
+    base-url: ${LANGFUSE_BASE_URL:https://cloud.langfuse.com}
+
+# Resilience4j Configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      claudeApi:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+  timelimiter:
+    instances:
+      claudeApi:
+        timeoutDuration: 30s
