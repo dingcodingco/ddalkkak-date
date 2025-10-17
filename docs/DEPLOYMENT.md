@@ -130,6 +130,145 @@ git push origin main   # backend/src/main/java/** 변경 시
 
 ---
 
+---
+
+## Backend 환경 변수 설정
+
+### AWS Secrets Manager 사용 (권장)
+
+Backend 애플리케이션은 민감한 정보를 AWS Secrets Manager를 통해 안전하게 관리합니다.
+
+#### 민감 정보 vs 비민감 정보 분류
+
+**민감 정보 (AWS Secrets Manager):**
+- `CLAUDE_API_KEY` - Anthropic Claude AI API 키
+- `KAKAO_REST_API_KEY` - Kakao REST API 키
+- `SPRING_DATASOURCE_PASSWORD` - PostgreSQL 비밀번호
+- `LANGFUSE_SECRET_KEY` - Langfuse 비밀 키
+- `LANGFUSE_PUBLIC_KEY` - Langfuse 공개 키
+
+**비민감 정보 (ECS Environment Variables):**
+- `SPRING_DATASOURCE_URL` - RDS 엔드포인트 (Terraform 출력)
+- `SPRING_DATASOURCE_USERNAME` - DB 사용자명
+- `REDIS_HOST` - Redis 엔드포인트 (Terraform 출력)
+- `REDIS_PORT` - Redis 포트 (6379)
+
+#### Secrets Manager 설정 방법
+
+**1. AWS CLI로 Secret 생성:**
+
+```bash
+# Claude API Key
+aws secretsmanager create-secret \
+  --name ddalkkak/backend/claude-api-key \
+  --secret-string "your-claude-api-key" \
+  --region us-east-1
+
+# Kakao REST API Key
+aws secretsmanager create-secret \
+  --name ddalkkak/backend/kakao-rest-api-key \
+  --secret-string "your-kakao-api-key" \
+  --region us-east-1
+
+# Database Password
+aws secretsmanager create-secret \
+  --name ddalkkak/backend/db-password \
+  --secret-string "your-db-password" \
+  --region us-east-1
+
+# Langfuse Keys
+aws secretsmanager create-secret \
+  --name ddalkkak/backend/langfuse-public-key \
+  --secret-string "your-langfuse-public-key" \
+  --region us-east-1
+
+aws secretsmanager create-secret \
+  --name ddalkkak/backend/langfuse-secret-key \
+  --secret-string "your-langfuse-secret-key" \
+  --region us-east-1
+```
+
+**2. Terraform tfvars 설정:**
+
+`terraform/terraform.tfvars` 파일에 다음과 같이 설정:
+
+```hcl
+backend_environment = [
+  {
+    name  = "SPRING_DATASOURCE_URL"
+    value = "jdbc:postgresql://your-rds-endpoint:5432/ddalkkak"
+  },
+  {
+    name  = "SPRING_DATASOURCE_USERNAME"
+    value = "postgres"
+  },
+  {
+    name  = "REDIS_HOST"
+    value = "your-redis-endpoint"
+  },
+  {
+    name  = "REDIS_PORT"
+    value = "6379"
+  }
+]
+
+backend_secrets = [
+  {
+    name      = "CLAUDE_API_KEY"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:YOUR_ACCOUNT_ID:secret:ddalkkak/backend/claude-api-key"
+  },
+  {
+    name      = "KAKAO_REST_API_KEY"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:YOUR_ACCOUNT_ID:secret:ddalkkak/backend/kakao-rest-api-key"
+  },
+  {
+    name      = "SPRING_DATASOURCE_PASSWORD"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:YOUR_ACCOUNT_ID:secret:ddalkkak/backend/db-password"
+  },
+  {
+    name      = "LANGFUSE_PUBLIC_KEY"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:YOUR_ACCOUNT_ID:secret:ddalkkak/backend/langfuse-public-key"
+  },
+  {
+    name      = "LANGFUSE_SECRET_KEY"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:YOUR_ACCOUNT_ID:secret:ddalkkak/backend/langfuse-secret-key"
+  }
+]
+```
+
+**3. Terraform Apply:**
+
+```bash
+cd terraform
+terraform init
+terraform plan
+terraform apply
+```
+
+**주의사항:**
+- Secret ARN은 반드시 전체 ARN을 사용해야 합니다 (버전 정보 포함)
+- Secrets Manager 권한은 ECS Task Execution Role에 자동으로 부여됩니다
+- Secret 값 변경 시 ECS 서비스 재배포가 필요합니다
+
+#### Secret 값 업데이트
+
+```bash
+# Secret 값 업데이트
+aws secretsmanager update-secret \
+  --secret-id ddalkkak/backend/claude-api-key \
+  --secret-string "new-claude-api-key" \
+  --region us-east-1
+
+# ECS 서비스 강제 재배포
+aws ecs update-service \
+  --cluster ddalkkak-prod \
+  --service ddalkkak-backend-service \
+  --force-new-deployment \
+  --region us-east-1
+```
+
+---
+
 ### Backend 배포 파이프라인
 
 #### Phase 1: 빌드 및 테스트 (3-5분)

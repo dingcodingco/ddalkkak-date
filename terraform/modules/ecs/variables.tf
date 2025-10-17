@@ -89,10 +89,19 @@ variable "frontend_environment" {
 }
 
 variable "backend_environment" {
-  description = "Environment variables for backend container"
+  description = "Environment variables for backend container (non-sensitive data only)"
   type = list(object({
     name  = string
     value = string
+  }))
+  default = []
+}
+
+variable "backend_secrets" {
+  description = "Secrets for backend container from AWS Secrets Manager"
+  type = list(object({
+    name      = string
+    valueFrom = string
   }))
   default = []
 }

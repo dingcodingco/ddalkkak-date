@@ -66,6 +66,7 @@ module "ecs" {
 
   frontend_environment      = var.frontend_environment
   backend_environment       = var.backend_environment
+  backend_secrets           = var.backend_secrets
 
   depends_on = [module.vpc, module.ecr, module.alb]
 }
