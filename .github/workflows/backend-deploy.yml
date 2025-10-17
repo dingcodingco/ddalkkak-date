@@ -21,10 +21,10 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: ddalkkak-backend
-  ECS_CLUSTER: ddalkkak-prod
+  ECS_CLUSTER: ddalkkak-cluster
   ECS_SERVICE: ddalkkak-backend-service
-  ECS_TASK_DEFINITION: ddalkkak-backend-task
-  CONTAINER_NAME: ddalkkak-backend
+  ECS_TASK_DEFINITION: ddalkkak-backend
+  CONTAINER_NAME: backend
 
 jobs:
   deploy:

@@ -21,10 +21,10 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: ddalkkak-frontend
-  ECS_CLUSTER: ddalkkak-prod
+  ECS_CLUSTER: ddalkkak-cluster
   ECS_SERVICE: ddalkkak-frontend-service
-  ECS_TASK_DEFINITION: ddalkkak-frontend-task
-  CONTAINER_NAME: ddalkkak-frontend
+  ECS_TASK_DEFINITION: ddalkkak-frontend
+  CONTAINER_NAME: frontend
 
 jobs:
   deploy:
@@ -106,13 +106,21 @@ jobs:
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       # ========================================
-      # Step 7: Download Current ECS Task Definition
+      # Step 7: Get or Create ECS Task Definition
       # ========================================
-      - name: Download task definition
+      - name: Get task definition from Terraform
+        id: get-task-def
         run: |
-          aws ecs describe-task-definition \
-            --task-definition ${{ env.ECS_TASK_DEFINITION }} \
-            --query taskDefinition > task-definition.json
+          # Terraform으로 생성된 Task Definition을 ECS에서 가져오기
+          if aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION }} &>/dev/null; then
+            echo "Task definition exists, downloading..."
+            aws ecs describe-task-definition \
+              --task-definition ${{ env.ECS_TASK_DEFINITION }} \
+              --query taskDefinition > task-definition.json
+          else
+            echo "Task definition not found. Please run 'terraform apply' first to create ECS infrastructure."
+            exit 1
+          fi
 
       # ========================================
       # Step 8: Update ECS Task Definition with New Image
