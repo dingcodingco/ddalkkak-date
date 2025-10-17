@@ -1,0 +1,68 @@
+# AWS Configuration
+aws_region   = "us-east-1"
+project_name = "ddalkkak"
+
+# VPC Configuration
+vpc_cidr = "10.0.0.0/16"
+
+# ECS Configuration
+frontend_cpu           = "256"
+frontend_memory        = "512"
+backend_cpu            = "512"
+backend_memory         = "1024"
+frontend_desired_count = 1
+backend_desired_count  = 1
+
+# Frontend Environment Variables
+frontend_environment = [
+  {
+    name  = "NEXT_PUBLIC_API_BASE_URL"
+    value = "http://your-alb-dns-name/api/v1"
+  },
+  {
+    name  = "NEXT_PUBLIC_KAKAO_MAP_API_KEY"
+    value = "your_kakao_map_api_key"
+  },
+  {
+    name  = "NEXT_PUBLIC_KAKAO_LOGIN_KEY"
+    value = "your_kakao_login_key"
+  }
+]
+
+# Backend Environment Variables
+backend_environment = [
+  {
+    name  = "SPRING_DATASOURCE_URL"
+    value = "jdbc:postgresql://your-rds-endpoint:5432/ddalkkak"
+  },
+  {
+    name  = "SPRING_DATASOURCE_USERNAME"
+    value = "postgres"
+  },
+  {
+    name  = "SPRING_DATASOURCE_PASSWORD"
+    value = "your_db_password"
+  },
+  {
+    name  = "REDIS_HOST"
+    value = "your-redis-endpoint"
+  },
+  {
+    name  = "REDIS_PORT"
+    value = "6379"
+  },
+  {
+    name  = "CLAUDE_API_KEY"
+    value = "your_anthropic_api_key"
+  }
+]
+
+# RDS Configuration
+db_name              = "ddalkkak"
+db_username          = "postgres"
+db_password          = "your_secure_password_here"  # Change this!
+db_engine_version    = "15.4"
+db_instance_class    = "db.t3.small"
+db_allocated_storage = 20
+db_multi_az          = true
+skip_final_snapshot  = false  # Set to true for dev/test only
