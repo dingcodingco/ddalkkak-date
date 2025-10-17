@@ -35,7 +35,9 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Copy necessary files from builder stage
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/next.config.mjs ./
-COPY --from=builder /app/public ./public
+
+# Create public directory (Next.js may not have one initially)
+RUN mkdir -p ./public
 
 # Copy built Next.js application
 # Set correct ownership for non-root user
