@@ -19,7 +19,7 @@ on:
           - staging
 
 env:
-  AWS_REGION: ap-northeast-2
+  AWS_REGION: us-east-1
   ECR_REPOSITORY: ddalkkak-frontend
   ECS_CLUSTER: ddalkkak-prod
   ECS_SERVICE: ddalkkak-frontend-service
@@ -30,9 +30,6 @@ jobs:
   deploy:
     name: Deploy Frontend
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write   # Required for OIDC authentication
-      contents: read    # Required for repository checkout
 
     steps:
       # ========================================
@@ -71,14 +68,14 @@ jobs:
           NEXT_PUBLIC_KAKAO_LOGIN_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_LOGIN_KEY }}
 
       # ========================================
-      # Step 4: AWS Authentication (OIDC)
+      # Step 4: AWS Authentication (IAM User)
       # ========================================
-      - name: Configure AWS credentials (OIDC)
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-          role-session-name: GitHubActions-Frontend-Deploy
 
       # ========================================
       # Step 5: Login to Amazon ECR
