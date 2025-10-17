@@ -43,7 +43,18 @@
       "Bash(docker-compose exec postgres psql:*)",
       "Bash(docker-compose down:*)",
       "Bash(docker rm:*)",
-      "Bash(./backend/gradlew -p backend test --tests CourseGenerationControllerTest)"
+      "Bash(./backend/gradlew -p backend test --tests CourseGenerationControllerTest)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(terraform output:*)",
+      "Bash(aws ecs list-tasks:*)",
+      "mcp__playwright__browser_console_messages",
+      "mcp__serena__list_dir",
+      "Bash(aws logs tail:*)",
+      "Bash(aws ecs describe-task-definition:*)",
+      "Bash(jq:*)",
+      "Bash(find:*)",
+      "Bash(terraform plan:*)"
     ],
     "deny": [],
     "ask": []

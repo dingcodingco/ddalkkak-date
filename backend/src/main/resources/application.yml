@@ -23,6 +23,10 @@ spring:
       port: ${REDIS_PORT:6379}
       timeout: 3000ms
 
+# Redis Configuration
+redis:
+  enabled: ${REDIS_ENABLED:false}
+
 server:
   port: 8080
   error:

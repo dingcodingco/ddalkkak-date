@@ -3,8 +3,8 @@ package com.ddalkkak.service;
 import com.ddalkkak.dto.CourseGenerationRequest;
 import com.ddalkkak.dto.CourseGenerationResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +15,16 @@ import java.util.HexFormat;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
+@ConditionalOnProperty(name = "redis.enabled", havingValue = "true", matchIfMissing = false)
 public class CourseCacheService {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
+
+    public CourseCacheService(RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper) {
+        this.redisTemplate = redisTemplate;
+        this.objectMapper = objectMapper;
+    }
     private static final String CACHE_PREFIX = "course:";
     private static final Duration CACHE_TTL = Duration.ofHours(24);
 

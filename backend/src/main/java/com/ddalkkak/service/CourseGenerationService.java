@@ -2,26 +2,40 @@ package com.ddalkkak.service;
 
 import com.ddalkkak.dto.CourseGenerationRequest;
 import com.ddalkkak.dto.CourseGenerationResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class CourseGenerationService {
 
-    private final CourseCacheService cacheService;
+    private final Optional<CourseCacheService> cacheService;
     private final ClaudeApiService claudeApiService;
     private final LangfuseTraceService traceService;
 
+    public CourseGenerationService(
+            @Autowired(required = false) CourseCacheService cacheService,
+            ClaudeApiService claudeApiService,
+            LangfuseTraceService traceService) {
+        this.cacheService = Optional.ofNullable(cacheService);
+        this.claudeApiService = claudeApiService;
+        this.traceService = traceService;
+    }
+
     public CourseGenerationResponse generateCourses(CourseGenerationRequest request) {
-        // 1. Check cache
-        CourseGenerationResponse cachedResponse = cacheService.getFromCache(request);
-        if (cachedResponse != null) {
-            log.info("Returning cached course for region: {}, dateType: {}",
-                request.getRegion(), request.getDateType());
-            return cachedResponse;
+        // 1. Check cache (if Redis is enabled)
+        if (cacheService.isPresent()) {
+            CourseGenerationResponse cachedResponse = cacheService.get().getFromCache(request);
+            if (cachedResponse != null) {
+                log.info("Returning cached course for region: {}, dateType: {}",
+                    request.getRegion(), request.getDateType());
+                return cachedResponse;
+            }
+        } else {
+            log.debug("Redis cache is disabled, skipping cache check");
         }
 
         // 2. Start Langfuse trace
@@ -32,8 +46,8 @@ public class CourseGenerationService {
             // 3. Generate courses via Claude API (with Circuit Breaker and Fallback)
             CourseGenerationResponse response = claudeApiService.generateCourses(request);
 
-            // 4. Save to cache
-            cacheService.saveToCache(request, response);
+            // 4. Save to cache (if Redis is enabled)
+            cacheService.ifPresent(service -> service.saveToCache(request, response));
 
             // 5. Record trace
             long duration = System.currentTimeMillis() - startTime;

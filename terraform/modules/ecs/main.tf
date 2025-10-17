@@ -218,6 +218,9 @@ resource "aws_ecs_service" "backend" {
   desired_count   = var.backend_desired_count
   launch_type     = "FARGATE"
 
+  # Health check grace period for Spring Boot startup (60s + 60s buffer)
+  health_check_grace_period_seconds = 120
+
   network_configuration {
     subnets          = var.private_subnet_ids
     security_groups  = [var.ecs_security_group_id]
