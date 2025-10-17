@@ -1,0 +1,158 @@
+name: Backend Deploy to ECS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-deploy.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+          - prod
+          - staging
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: ddalkkak-backend
+  ECS_CLUSTER: ddalkkak-prod
+  ECS_SERVICE: ddalkkak-backend-service
+  ECS_TASK_DEFINITION: ddalkkak-backend-task
+  CONTAINER_NAME: ddalkkak-backend
+
+jobs:
+  deploy:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      # ========================================
+      # Step 1: Checkout Repository
+      # ========================================
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ========================================
+      # Step 2: Setup Java Environment
+      # ========================================
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      # ========================================
+      # Step 3: Build & Test Spring Boot Application
+      # ========================================
+      - name: Grant execute permission for gradlew
+        working-directory: ./backend
+        run: chmod +x gradlew
+
+      - name: Run Gradle tests
+        working-directory: ./backend
+        run: ./gradlew test --no-daemon
+
+      - name: Build with Gradle
+        working-directory: ./backend
+        run: ./gradlew clean build --no-daemon -x test
+
+      # ========================================
+      # Step 4: AWS Authentication (IAM User)
+      # ========================================
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # ========================================
+      # Step 5: Login to Amazon ECR
+      # ========================================
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # ========================================
+      # Step 6: Build & Push Docker Image
+      # ========================================
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        working-directory: ./backend
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: git-${{ github.sha }}
+        run: |
+          # Build Docker image
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          # Push to ECR
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          # Output image URI for next steps
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      # ========================================
+      # Step 7: Download Current ECS Task Definition
+      # ========================================
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.ECS_TASK_DEFINITION }} \
+            --query taskDefinition > task-definition.json
+
+      # ========================================
+      # Step 8: Update ECS Task Definition with New Image
+      # ========================================
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+
+      # ========================================
+      # Step 9: Deploy to Amazon ECS
+      # ========================================
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+          wait-for-minutes: 15
+
+      # ========================================
+      # Step 10: Run Database Migrations (if needed)
+      # ========================================
+      - name: Run database migrations
+        if: success()
+        run: |
+          echo "Database migrations would run here if needed"
+          # Example: aws ecs run-task --cluster ${{ env.ECS_CLUSTER }} --task-definition migration-task
+
+      # ========================================
+      # Step 11: Deployment Summary
+      # ========================================
+      - name: Deployment summary
+        run: |
+          echo "### 🚀 Backend Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`${{ steps.build-image.outputs.image }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Cluster:** \`${{ env.ECS_CLUSTER }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Service:** \`${{ env.ECS_SERVICE }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Region:** \`${{ env.AWS_REGION }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
