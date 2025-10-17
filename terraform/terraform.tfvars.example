@@ -29,7 +29,7 @@ frontend_environment = [
   }
 ]
 
-# Backend Environment Variables
+# Backend Environment Variables (non-sensitive data only)
 backend_environment = [
   {
     name  = "SPRING_DATASOURCE_URL"
@@ -40,10 +40,6 @@ backend_environment = [
     value = "postgres"
   },
   {
-    name  = "SPRING_DATASOURCE_PASSWORD"
-    value = "your_db_password"
-  },
-  {
     name  = "REDIS_HOST"
     value = "your-redis-endpoint"
   },
@@ -52,8 +48,33 @@ backend_environment = [
     value = "6379"
   },
   {
-    name  = "CLAUDE_API_KEY"
-    value = "your_anthropic_api_key"
+    name  = "SPRING_PROFILES_ACTIVE"
+    value = "prod"
+  }
+]
+
+# Backend Secrets (sensitive data from AWS Secrets Manager)
+# Replace ARNs with your actual Secret ARNs after creating them in AWS Secrets Manager
+backend_secrets = [
+  {
+    name      = "CLAUDE_API_KEY"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:YOUR_ACCOUNT_ID:secret:ddalkkak/backend/claude-api-key-XXXXXX"
+  },
+  {
+    name      = "KAKAO_REST_API_KEY"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:YOUR_ACCOUNT_ID:secret:ddalkkak/backend/kakao-rest-api-key-XXXXXX"
+  },
+  {
+    name      = "SPRING_DATASOURCE_PASSWORD"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:YOUR_ACCOUNT_ID:secret:ddalkkak/backend/db-password-XXXXXX"
+  },
+  {
+    name      = "LANGFUSE_PUBLIC_KEY"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:YOUR_ACCOUNT_ID:secret:ddalkkak/backend/langfuse-public-key-XXXXXX"
+  },
+  {
+    name      = "LANGFUSE_SECRET_KEY"
+    valueFrom = "arn:aws:secretsmanager:us-east-1:YOUR_ACCOUNT_ID:secret:ddalkkak/backend/langfuse-secret-key-XXXXXX"
   }
 ]
 
