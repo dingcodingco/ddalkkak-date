@@ -58,6 +58,15 @@ dependencies {
 	implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.15.0'
 	implementation 'io.sentry:sentry-logback:7.15.0'
 
+	// Langfuse SDK
+	implementation 'com.langfuse:langfuse-java:0.1.0'
+
+	// OpenTelemetry for Langfuse Tracing
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+	implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
+	implementation 'io.opentelemetry:opentelemetry-api'
+
 	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

@@ -72,6 +72,23 @@ cp .env.example .env
 - `CLAUDE_API_KEY`: Anthropic Claude API 키
 - `NEXT_PUBLIC_KAKAO_MAP_API_KEY`: 카카오맵 API 키
 
+선택 환경 변수 (LLM Observability):
+- `LANGFUSE_PUBLIC_KEY`: Langfuse Public Key (선택)
+- `LANGFUSE_SECRET_KEY`: Langfuse Secret Key (선택)
+- `LANGFUSE_BASE_URL`: Langfuse Base URL (기본값: https://cloud.langfuse.com)
+
+> **Langfuse 설정 (선택)**
+> Langfuse를 사용하면 LLM 호출을 추적하고 비용, 성능, 품질을 모니터링할 수 있습니다.
+> 1. [Langfuse Cloud](https://cloud.langfuse.com)에서 무료 계정 생성
+> 2. 프로젝트 생성 후 Settings > API Keys에서 Public Key와 Secret Key 발급
+> 3. `backend/.env` 파일에 키 추가
+> 4. 백엔드 재시작 후 AI 코스 생성 API 호출 시 자동으로 Langfuse에 추적 데이터 전송
+>
+> **기술 스택**: OpenTelemetry + Micrometer를 통한 자동 tracing
+> - 모든 LLM 호출이 자동으로 Langfuse에 trace로 기록됩니다
+> - 비용, 토큰 사용량, 응답 시간 등 메트릭 자동 수집
+> - Langfuse 대시보드에서 실시간 모니터링 가능
+
 ### 3. Docker Compose로 데이터베이스 시작
 
 ```bash
