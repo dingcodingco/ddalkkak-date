@@ -54,7 +54,12 @@
       "Bash(aws ecs describe-task-definition:*)",
       "Bash(jq:*)",
       "Bash(find:*)",
-      "Bash(terraform plan:*)"
+      "Bash(terraform plan:*)",
+      "Bash(git push:*)",
+      "mcp__serena__get_current_config",
+      "mcp__serena__check_onboarding_performed",
+      "mcp__serena__onboarding",
+      "mcp__serena__write_memory"
     ],
     "deny": [],
     "ask": []

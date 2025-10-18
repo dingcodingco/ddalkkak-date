@@ -132,6 +132,74 @@ npm run dev
 
 프론트엔드가 http://localhost:3000 에서 실행됩니다.
 
+## Sentry 설정 (에러 추적 및 성능 모니터링)
+
+### 1. Sentry 프로젝트 생성
+
+1. [Sentry.io](https://sentry.io)에서 계정 생성/로그인
+2. 새 프로젝트 생성:
+   - **Frontend**: Next.js 프로젝트 (`ddalkkak-frontend`)
+   - **Backend**: Java/Spring Boot 프로젝트 (`ddalkkak-backend`)
+3. 프로젝트 생성 후 DSN 복사
+
+### 2. 환경 변수 설정
+
+**Frontend (`frontend/.env.local`):**
+```env
+NEXT_PUBLIC_SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
+NEXT_PUBLIC_SENTRY_ENVIRONMENT=development
+NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=1.0
+
+# Source Map 업로드용 (CI/CD에서만 사용)
+SENTRY_AUTH_TOKEN=your_sentry_auth_token
+SENTRY_ORG=your_org_name
+SENTRY_PROJECT=ddalkkak-frontend
+```
+
+**Backend (`.env` 또는 환경 변수):**
+```env
+SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
+SENTRY_ENVIRONMENT=development
+SENTRY_TRACES_SAMPLE_RATE=1.0
+```
+
+### 3. Sentry 작동 확인
+
+**Frontend 테스트:**
+```bash
+cd frontend
+npm install
+npm run dev
+
+# 브라우저 콘솔에서 테스트 에러 발생
+throw new Error('Test Sentry Error')
+```
+
+**Backend 테스트:**
+```bash
+cd backend
+./gradlew bootRun
+
+# curl로 테스트 (존재하지 않는 엔드포인트 호출)
+curl http://localhost:8080/api/v1/test-error
+```
+
+### 4. Sentry 대시보드 확인
+
+1. Sentry.io 대시보드에서 프로젝트 선택
+2. **Issues** 탭에서 발생한 에러 확인
+3. **Performance** 탭에서 성능 메트릭 확인
+4. **Releases** 탭에서 배포 추적 확인
+
+### 5. Slack 알림 설정 (선택 사항)
+
+1. Sentry 프로젝트 → Settings → Integrations
+2. Slack 연동 설정
+3. Alert Rules 설정:
+   - **Critical Error**: 새로운 치명적 에러 발생 시 알림
+   - **Error Rate**: 에러 발생률 5% 초과 시 알림
+   - **Performance**: 성능 저하 감지 시 알림
+
 ## 개발 가이드
 
 ### 프론트엔드
