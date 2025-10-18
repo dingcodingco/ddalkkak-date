@@ -74,6 +74,50 @@ java -jar build/libs/ddalkkak-backend-0.0.1-SNAPSHOT.jar
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
 - **OpenAPI JSON**: http://localhost:8080/api-docs
 
+### API 문서 작성 가이드
+
+새로운 API를 추가할 때는 다음 어노테이션을 사용하여 문서화하세요:
+
+#### Controller 레벨
+```java
+@Tag(name = "API 그룹명", description = "API 그룹 설명")
+@RestController
+@RequestMapping("/api/v1/...")
+public class YourController {
+    // ...
+}
+```
+
+#### 메서드 레벨
+```java
+@Operation(summary = "API 요약", description = "API 상세 설명")
+@ApiResponses(value = {
+    @ApiResponse(
+        responseCode = "200",
+        description = "성공",
+        content = @Content(schema = @Schema(implementation = ResponseDto.class))
+    ),
+    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+    @ApiResponse(responseCode = "500", description = "서버 오류")
+})
+@PostMapping("/endpoint")
+public ResponseEntity<ResponseDto> yourMethod(@Valid @RequestBody RequestDto request) {
+    // ...
+}
+```
+
+#### DTO 레벨
+```java
+@Schema(description = "요청/응답 DTO 설명")
+public class YourDto {
+
+    @Schema(description = "필드 설명", example = "예시 값", required = true)
+    private String field;
+
+    // ...
+}
+```
+
 ## 주요 엔드포인트
 
 ### Health Check
