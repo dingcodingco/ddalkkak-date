@@ -72,8 +72,7 @@ management:
     tracing:
       endpoint: ${LANGFUSE_BASE_URL:https://cloud.langfuse.com}/api/public/otel/v1/traces
       headers:
-        x-langfuse-public-key: ${LANGFUSE_PUBLIC_KEY:}
-        x-langfuse-secret-key: ${LANGFUSE_SECRET_KEY:}
+        Authorization: Basic ${LANGFUSE_AUTH_STRING:}
 
 # Sentry Configuration
 sentry:

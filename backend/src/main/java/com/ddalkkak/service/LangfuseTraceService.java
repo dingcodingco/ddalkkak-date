@@ -4,6 +4,7 @@ import com.ddalkkak.config.LangfuseConfig;
 import com.ddalkkak.dto.CourseGenerationRequest;
 import com.ddalkkak.dto.CourseGenerationResponse;
 import com.langfuse.client.LangfuseClient;
+import io.opentelemetry.api.trace.Span;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,6 +79,16 @@ public class LangfuseTraceService {
             int estimatedPromptTokens = calculatePromptTokens(request);
             int estimatedCompletionTokens = calculateCompletionTokens(response);
             double estimatedCost = calculateCost(estimatedPromptTokens, estimatedCompletionTokens);
+
+            // Add LLM metadata to current OpenTelemetry span
+            Span currentSpan = Span.current();
+            if (currentSpan != null) {
+                currentSpan.setAttribute("gen_ai.usage.prompt_tokens", estimatedPromptTokens);
+                currentSpan.setAttribute("gen_ai.usage.completion_tokens", estimatedCompletionTokens);
+                currentSpan.setAttribute("gen_ai.usage.total_tokens", estimatedPromptTokens + estimatedCompletionTokens);
+                currentSpan.setAttribute("gen_ai.usage.cost", estimatedCost);
+                currentSpan.setAttribute("gen_ai.response.courses_count", response.getCourses().size());
+            }
 
             log.info("[Langfuse] Recorded generation: traceId={}, model={}, duration={}ms, " +
                     "coursesCount={}, estimatedTokens={}/{} (prompt/completion), estimatedCost=${}",

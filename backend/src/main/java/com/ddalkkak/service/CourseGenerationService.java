@@ -31,12 +31,15 @@ public class CourseGenerationService {
     }
 
     public CourseGenerationResponse generateCourses(CourseGenerationRequest request) {
-        // Create OpenTelemetry observation for Langfuse tracing
+        // Create OpenTelemetry observation for Langfuse tracing with LLM metadata
         return Observation.createNotStarted("course.generation", observationRegistry)
                 .lowCardinalityKeyValue("region", request.getRegion())
                 .lowCardinalityKeyValue("dateType", request.getDateType())
                 .highCardinalityKeyValue("budget", String.valueOf(request.getBudget()))
-                .highCardinalityKeyValue("langfuse.operation.name", "course-generation")
+                // Langfuse-specific attributes for LLM tracing
+                .highCardinalityKeyValue("gen_ai.system", "anthropic")
+                .highCardinalityKeyValue("gen_ai.request.model", "claude-sonnet-4-20250514")
+                .highCardinalityKeyValue("gen_ai.operation.name", "course-generation")
                 .observe(() -> {
                     // 1. Check cache (if Redis is enabled)
                     if (cacheService.isPresent()) {
