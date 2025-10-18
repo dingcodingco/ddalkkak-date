@@ -16,6 +16,11 @@ const sentryWebpackPluginOptions = {
 
   // Auth token for uploading source maps
   authToken: process.env.SENTRY_AUTH_TOKEN,
+
+  // Automatically delete source maps after upload
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
 };
 
 // Additional Sentry configuration

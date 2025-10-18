@@ -200,6 +200,30 @@ curl http://localhost:8080/api/v1/test-error
    - **Error Rate**: 에러 발생률 5% 초과 시 알림
    - **Performance**: 성능 저하 감지 시 알림
 
+### 6. CI/CD 자동화 (프로덕션)
+
+GitHub Actions를 통해 자동으로 Sentry Release와 Source Map이 업로드됩니다:
+
+**필요한 GitHub Secrets 설정:**
+```
+SENTRY_AUTH_TOKEN=your_sentry_auth_token
+SENTRY_ORG=ddalkkak-date
+SENTRY_PROJECT=ddalkkak-frontend
+NEXT_PUBLIC_SENTRY_DSN=your_frontend_sentry_dsn
+```
+
+**자동화 기능:**
+- ✅ 빌드 시 Source Map 자동 생성
+- ✅ Sentry Release 생성 (commit SHA 기반)
+- ✅ Source Map 업로드 및 자동 삭제 (보안)
+- ✅ Release Finalization (배포 완료 후)
+- ✅ 배포 요약에 Sentry 대시보드 링크 포함
+
+**주요 개선사항:**
+- `instrumentation.ts`: Next.js 14 권장 방식으로 Sentry 초기화
+- Source Map 자동 삭제: 빌드 후 Source Map 파일을 자동으로 삭제하여 보안 강화
+- GitHub Actions 통합: 배포 시 자동으로 Sentry Release 생성 및 Source Map 업로드
+
 ## 개발 가이드
 
 ### 프론트엔드
