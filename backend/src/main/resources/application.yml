@@ -63,6 +63,18 @@ langfuse:
     secret-key: ${LANGFUSE_SECRET_KEY:}
     base-url: ${LANGFUSE_BASE_URL:https://cloud.langfuse.com}
 
+# OpenTelemetry Configuration for Langfuse
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${LANGFUSE_BASE_URL:https://cloud.langfuse.com}/api/public/otel/v1/traces
+      headers:
+        x-langfuse-public-key: ${LANGFUSE_PUBLIC_KEY:}
+        x-langfuse-secret-key: ${LANGFUSE_SECRET_KEY:}
+
 # Sentry Configuration
 sentry:
   dsn: ${SENTRY_DSN:}

@@ -83,6 +83,11 @@ cp .env.example .env
 > 2. 프로젝트 생성 후 Settings > API Keys에서 Public Key와 Secret Key 발급
 > 3. `backend/.env` 파일에 키 추가
 > 4. 백엔드 재시작 후 AI 코스 생성 API 호출 시 자동으로 Langfuse에 추적 데이터 전송
+>
+> **기술 스택**: OpenTelemetry + Micrometer를 통한 자동 tracing
+> - 모든 LLM 호출이 자동으로 Langfuse에 trace로 기록됩니다
+> - 비용, 토큰 사용량, 응답 시간 등 메트릭 자동 수집
+> - Langfuse 대시보드에서 실시간 모니터링 가능
 
 ### 3. Docker Compose로 데이터베이스 시작
 
