@@ -63,6 +63,17 @@ langfuse:
     secret-key: ${LANGFUSE_SECRET_KEY:}
     base-url: ${LANGFUSE_BASE_URL:https://cloud.langfuse.com}
 
+# Sentry Configuration
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: ${SENTRY_ENVIRONMENT:development}
+  traces-sample-rate: ${SENTRY_TRACES_SAMPLE_RATE:1.0}
+  send-default-pii: false
+  enable-tracing: true
+  logging:
+    minimum-event-level: warn
+    minimum-breadcrumb-level: info
+
 # Resilience4j Configuration
 resilience4j:
   circuitbreaker:

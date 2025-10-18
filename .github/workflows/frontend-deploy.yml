@@ -66,9 +66,30 @@ jobs:
           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
           NEXT_PUBLIC_KAKAO_MAP_API_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_MAP_API_KEY }}
           NEXT_PUBLIC_KAKAO_LOGIN_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_LOGIN_KEY }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
+          NEXT_PUBLIC_SENTRY_ENVIRONMENT: production
+          NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE: 0.1
+          NEXT_PUBLIC_SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
 
       # ========================================
-      # Step 4: AWS Authentication (IAM User)
+      # Step 4: Create Sentry Release
+      # ========================================
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        with:
+          environment: production
+          version: ${{ github.sha }}
+          sourcemaps: ./frontend/.next
+
+      # ========================================
+      # Step 5: AWS Authentication (IAM User)
       # ========================================
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -78,14 +99,14 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       # ========================================
-      # Step 5: Login to Amazon ECR
+      # Step 6: Login to Amazon ECR
       # ========================================
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       # ========================================
-      # Step 6: Build & Push Docker Image
+      # Step 7: Build & Push Docker Image
       # ========================================
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
@@ -106,7 +127,7 @@ jobs:
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       # ========================================
-      # Step 7: Get or Create ECS Task Definition
+      # Step 8: Get or Create ECS Task Definition
       # ========================================
       - name: Get task definition from Terraform
         id: get-task-def
@@ -123,7 +144,7 @@ jobs:
           fi
 
       # ========================================
-      # Step 8: Update ECS Task Definition with New Image
+      # Step 9: Update ECS Task Definition with New Image
       # ========================================
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
@@ -134,7 +155,7 @@ jobs:
           image: ${{ steps.build-image.outputs.image }}
 
       # ========================================
-      # Step 9: Deploy to Amazon ECS
+      # Step 10: Deploy to Amazon ECS
       # ========================================
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
@@ -146,7 +167,21 @@ jobs:
           wait-for-minutes: 10
 
       # ========================================
-      # Step 10: Deployment Summary
+      # Step 11: Finalize Sentry Release
+      # ========================================
+      - name: Finalize Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        with:
+          environment: production
+          version: ${{ github.sha }}
+          finalize: true
+
+      # ========================================
+      # Step 12: Deployment Summary
       # ========================================
       - name: Deployment summary
         run: |
@@ -159,3 +194,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Sentry Release" >> $GITHUB_STEP_SUMMARY
+          echo "**Release:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** \`production\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Dashboard:** [View in Sentry](https://ddalkkak-date.sentry.io/releases/${{ github.sha }}/?project=4510208245956608)" >> $GITHUB_STEP_SUMMARY
